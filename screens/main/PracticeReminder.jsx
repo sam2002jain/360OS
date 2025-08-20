@@ -5,16 +5,62 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ImageBackground,
+  ScrollView,
 } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { TextInput } from "react-native-gesture-handler";
 
+
+const audiodata = [{
+  title: "Experience Space 1 min with Introduction",
+  description: "Guided - Sensory Space with Introduction",
+  duration: "1 min",
+  audioFile: "path/to/audio/file.mp3",
+},
+{
+  title: "Experience Space 1 min",
+  description: "Guided - Sensory Space without Introduction",
+  duration: "1 min",
+  audioFile: "path/to/audio/file.mp3",
+},
+{
+  title: "7 Min - The Seven Spaces Sensory, Mind & Time Spaces",
+  description: "Guided - Noticing Sensory (outer), Mind (inner) and Eternal Now",
+  duration: "7 min",
+  audioFile: "path/to/audio/file.mp3",
+},
+{
+  title: "11 Min - Space of Un-Conditional Love",
+  description: "Guides - Notice and Sensing the All Encompassing Love",
+  duration: "11 min",
+  audioFile: "path/to/audio/file.mp3",
+},
+{
+  title: "20 Min - 360 Degree Infinite Space Outer and Inner Space",
+  description: "Guided - Notice and Sensing the Natural Expansive Open-Ness",
+  duration: "20 min",
+  audioFile: "path/to/audio/file.mp3",
+}
+];
+
 const PracticeReminder = (props) => {
   const { navigation } = props;
-  const [activeTab, setActiveTab] = useState("Reminder");
-  const [frequency, setFrequency] = useState(1); 
+  const [activeTab, setActiveTab] = useState("Guided");
+  const [frequency, setFrequency] = useState(1);
+  const [playingIndex, setPlayingIndex] = useState(null);
+
+  const handlePlayPause = (index) => {
+    if (playingIndex === index) {
+      // If the same item is playing, pause it
+      setPlayingIndex(null);
+    } else {
+      // Otherwise, play the new item
+      setPlayingIndex(index);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Main Header */}
@@ -103,37 +149,37 @@ const PracticeReminder = (props) => {
 
         {activeTab === "Practice" && (
           <View style={styles.contentContainer}>
-          <Text style={styles.contentTitle}>Practice Timer</Text>
+            <Text style={styles.contentTitle}>Practice Timer</Text>
 
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionHeader}>Practice Timer</Text>
-            <Text style={styles.contentText}>
-            Set a timer for your practice session
-            </Text>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionHeader}>Practice Timer</Text>
+              <Text style={styles.contentText}>
+                Set a timer for your practice session
+              </Text>
 
-            <Slider
-              style={{ width: "100%", height: 40 }}
-              minimumValue={1}
-              maximumValue={60}
-              step={3}
-              value={frequency}
-              onValueChange={(value) => setFrequency(value)}
-              minimumTrackTintColor="#202124"
-              maximumTrackTintColor="#5D3FD3"
-              thumbTintColor="#5D3FD3"
-            />
+              <Slider
+                style={{ width: "100%", height: 40 }}
+                minimumValue={1}
+                maximumValue={60}
+                step={3}
+                value={frequency}
+                onValueChange={(value) => setFrequency(value)}
+                minimumTrackTintColor="#202124"
+                maximumTrackTintColor="#5D3FD3"
+                thumbTintColor="#5D3FD3"
+              />
 
-            <View style={styles.sliderContainer}>
-              <Text>1</Text>
-              <Text>60</Text>
+              <View style={styles.sliderContainer}>
+                <Text>1</Text>
+                <Text>60</Text>
+              </View>
+
+              <Text style={styles.selectedCount}>
+                {frequency} {frequency === 1 ? "minute" : "minutes"}
+              </Text>
             </View>
 
-            <Text style={styles.selectedCount}>
-              {frequency} {frequency === 1 ? "time" : "times"} minute
-            </Text>
-          </View>
 
-         
             <Text style={styles.recordtitle}>Record your Experience</Text>
             <Text style={styles.recordsubtitle}>Record your Experience</Text>
             <TextInput keyboardType="default"
@@ -149,31 +195,48 @@ const PracticeReminder = (props) => {
               <TouchableOpacity style={styles.savebtn}>
                 <Text style={styles.savetxt}>Save to Journal</Text>
               </TouchableOpacity>
-            </View> 
-        </View>
+            </View>
+          </View>
         )}
 
         {activeTab === "Guided" && (
-        <View style={styles.guideContainer}>
-          <View style={styles.contentContainer3}>
-            <Text style={styles.contentTitle2}>
-              Guided Practice
-            </Text>
-            <Text style={styles.contentsubTitle}>
-              Select from our collection
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.recordbtn}>
-            <Ionicons name="create-outline" size={18} color="#202124"/>
-            <Text style={styles.recordtxt}>Record Experience</Text>
-          </TouchableOpacity>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.guideContainer}>
+              <View style={styles.guideHeader}>
+                <View style={{ flex: 1, width: '90%', marginBottom:10}}>
+                  <Text style={styles.contentTitle2}>Guided Practice</Text>
+                  <Text style={styles.contentsubTitle}>
+                    Select from our collection of guided practice audio tracks
+                  </Text>
+                </View>
+                <TouchableOpacity style={styles.recordbtn}>
+                  <Ionicons name="create-outline" size={20} color="#202124" />
+                  <Text style={styles.recordtxt}>Record Experience</Text>
+                </TouchableOpacity>
+              </View>
 
-          <View>
-            {/* audio book */}
-            
-          </View>
-
-        </View>
+              {audiodata.map((item, index) => (
+                <View key={index} style={styles.audioItem}>
+                  <View style={{ flex: 1, width: '90%' }}>
+                    <Text style={styles.audioTitle}>{item.title}</Text>
+                    <Text style={styles.audioDescription}>{item.description}</Text>
+                    <View style={styles.audioDurationContainer}>
+                      <Ionicons name="timer-outline" size={14} color="#666" />
+                      <Text style={styles.audioDuration}>{item.duration}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity style={styles.playButton} onPress={() => handlePlayPause(index)}>
+                    <Ionicons
+                      name={playingIndex === index ? "pause" : "play"}
+                      size={24}
+                      color="#fff"
+                    />
+                    <Text style={styles.playText}>{playingIndex === index ? "Pause" : "Play"}</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
         )}
       </ImageBackground>
     </SafeAreaView>
@@ -185,13 +248,13 @@ export default PracticeReminder;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#383e58", // Dark background to match the image's top bar
+    backgroundColor: "#383e58",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
-    paddingTop: 45, // Add more padding for the status bar area
+    paddingTop: 45,
     backgroundColor: "#3d424dff",
   },
   menuButton: {
@@ -227,30 +290,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffff",
     justifyContent: "space-around",
   },
-  reminder: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-  },
-  practice: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-  },
-  guided: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 20,
-  },
   tab: {
     flex: 1,
     alignItems: "center",
@@ -261,7 +300,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     textAlign: "center",
-    backgroundColor: "#5D3FD3", // A shade of purple
+    backgroundColor: "#5D3FD3",
   },
   activeText: {
     textAlign: "center",
@@ -280,9 +319,10 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   contentTitle2: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 5,
+    color: '#202124',
   },
   contentText: {
     fontSize: 16,
@@ -341,102 +381,151 @@ const styles = StyleSheet.create({
     paddingHorizontal: 35,
     borderRadius: 25,
     marginTop: 20,
-    borderWidth:1,
-    borderColor:'#ffff'
+    borderWidth: 1,
+    borderColor: '#ffff'
   },
   saveButtonText: {
     color: "#ffff",
     fontSize: 18,
     fontWeight: "bold",
   },
-  recordtitle:{
+  recordtitle: {
     color: "#5D3FD3",
     fontSize: 18,
     fontWeight: "bold",
   },
-  recordsubtitle:{
+  recordsubtitle: {
     color: "#202124",
     fontSize: 12,
     fontWeight: "bold",
   },
-  input:{
-    borderWidth:0.6,
-    borderColor:'#bbb',
-    backgroundColor:'#ffff',
-    borderRadius:10,
-    marginTop:5,
+  input: {
+    borderWidth: 0.6,
+    borderColor: '#bbb',
+    backgroundColor: '#ffff',
+    borderRadius: 10,
+    marginTop: 5,
   },
-  buttoncontainer:{
-    flexDirection:'row',
-    justifyContent:'space-between',
-    gap:'20%',
-    alignItems:'center',
-    marginTop:15,
+  buttoncontainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: '20%',
+    alignItems: 'center',
+    marginTop: 15,
 
   },
-  cancelbtn:{
-    borderRadius:0.5,
-    borderColor:"#ffff",
-    width:100,
-    height:40,
-    backgroundColor:'#ffff',
-    borderRadius:6,
-    alignItems:'center',
-    justifyContent:'center'
+  cancelbtn: {
+    borderRadius: 0.5,
+    borderColor: "#ffff",
+    width: 100,
+    height: 40,
+    backgroundColor: '#ffff',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center'
 
   },
-  savebtn:{
-    borderRadius:0.5,
-    borderColor:"#ffff",
-    width:130,
-    height:40,
-    backgroundColor:'#5D3FD3',
-    borderRadius:6,
-     alignItems:'center',
-    justifyContent:'center'
+  savebtn: {
+    borderRadius: 0.5,
+    borderColor: "#ffff",
+    width: 130,
+    height: 40,
+    backgroundColor: '#5D3FD3',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  canceltxt:{
-    color:'#5D3FD3',
-    textAlign:'center'
+  canceltxt: {
+    color: '#5D3FD3',
+    textAlign: 'center'
 
   },
-  savetxt:{
-    color:'#ffff',
-    textAlign:'center'
+  savetxt: {
+    color: '#ffff',
+    textAlign: 'center'
 
   },
-  guideContainer:{
-    backgroundColor: "#ffff",
+  guideContainer: {
+    backgroundColor: "#fff",
     borderRadius: 15,
     margin: 20,
     padding: 15,
-    flexDirection:'row',
-    justifyContent:'space-between'
-
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
-  contentContainer3: {
-    alignItems: "center",
-    flexDirection:'column'
+  guideHeader: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  contentsubTitle:{
-    color:'#202124',
-    fontSize:10,
-    fontWeight:400,
+  contentsubTitle: {
+    color: '#202124',
+    fontSize: 10,
+    fontWeight: '400',
   },
-  recordbtn:{
-    borderRadius:8,
-    borderWidth:0.5,
-    borderColor:'#bbb',
-    backgroundColor:'#ffff',
-    paddingHorizontal:15,
-    paddingVertical:5,
-    alignItems:'center',
-    justifyContent:'center',
-    flexDirection:'row',
-    gap:5
+  recordbtn: {
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#bbb',
+    backgroundColor: '#fff',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 5
   },
-  recordtxt:{
-    fontSize:12,
-    fontWeight:500,
+  recordtxt: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  audioItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  audioTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  audioDescription: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 2,
+  },
+  audioDurationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  audioDuration: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 5,
+  },
+  playButton: {
+    backgroundColor: '#5D3FD3',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5
+  },
+  playText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
