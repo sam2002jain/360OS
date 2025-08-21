@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   ImageBackground,
   ScrollView,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView
 } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { TextInput } from "react-native-gesture-handler";
 
 
 const audiodata = [{
@@ -50,15 +52,27 @@ const PracticeReminder = (props) => {
   const [activeTab, setActiveTab] = useState("Guided");
   const [frequency, setFrequency] = useState(1);
   const [playingIndex, setPlayingIndex] = useState(null);
+  const [record, setRecord] = useState(false);
+  const [recordedExperience, setRecordedExperience] = useState("");
 
   const handlePlayPause = (index) => {
     if (playingIndex === index) {
-      // If the same item is playing, pause it
       setPlayingIndex(null);
     } else {
-      // Otherwise, play the new item
       setPlayingIndex(index);
     }
+  };
+  
+  const handleSaveExperience = () => {
+    // Logic to save the recorded experience to a journal
+    console.log("Recorded experience:", recordedExperience);
+    setRecordedExperience(""); // Clear the text input
+    setRecord(false); // Close the modal
+  };
+
+  const handleCancel = () => {
+    setRecordedExperience(""); // Clear the text input
+    setRecord(false); // Close the modal without saving
   };
 
   return (
@@ -112,13 +126,11 @@ const PracticeReminder = (props) => {
         {activeTab === "Reminder" && (
           <View style={styles.contentContainer}>
             <Text style={styles.contentTitle}>Daily Practice Reminders</Text>
-
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionHeader}>Daily Frequency</Text>
               <Text style={styles.contentText}>
                 How many times per day would you like to receive practice reminders?
               </Text>
-
               <Slider
                 style={{ width: "100%", height: 40 }}
                 minimumValue={1}
@@ -130,17 +142,14 @@ const PracticeReminder = (props) => {
                 maximumTrackTintColor="#cccccc"
                 thumbTintColor="#5D3FD3"
               />
-
               <View style={styles.sliderContainer}>
                 <Text>1</Text>
                 <Text>10</Text>
               </View>
-
               <Text style={styles.selectedCount}>
                 {frequency} {frequency === 1 ? "time" : "times"} per day
               </Text>
             </View>
-
             <TouchableOpacity style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Save Settings</Text>
             </TouchableOpacity>
@@ -148,55 +157,52 @@ const PracticeReminder = (props) => {
         )}
 
         {activeTab === "Practice" && (
-          <View style={styles.contentContainer}>
-            <Text style={styles.contentTitle}>Practice Timer</Text>
-
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionHeader}>Practice Timer</Text>
-              <Text style={styles.contentText}>
-                Set a timer for your practice session
-              </Text>
-
-              <Slider
-                style={{ width: "100%", height: 40 }}
-                minimumValue={1}
-                maximumValue={60}
-                step={3}
-                value={frequency}
-                onValueChange={(value) => setFrequency(value)}
-                minimumTrackTintColor="#202124"
-                maximumTrackTintColor="#5D3FD3"
-                thumbTintColor="#5D3FD3"
-              />
-
-              <View style={styles.sliderContainer}>
-                <Text>1</Text>
-                <Text>60</Text>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentTitle}>Practice Timer</Text>
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionHeader}>Practice Timer</Text>
+                <Text style={styles.contentText}>
+                  Set a timer for your practice session
+                </Text>
+                <Slider
+                  style={{ width: "100%", height: 40 }}
+                  minimumValue={1}
+                  maximumValue={60}
+                  step={3}
+                  value={frequency}
+                  onValueChange={(value) => setFrequency(value)}
+                  minimumTrackTintColor="#202124"
+                  maximumTrackTintColor="#5D3FD3"
+                  thumbTintColor="#5D3FD3"
+                />
+                <View style={styles.sliderContainer}>
+                  <Text>1</Text>
+                  <Text>60</Text>
+                </View>
+                <Text style={styles.selectedCount}>
+                  {frequency} {frequency === 1 ? "minute" : "minutes"}
+                </Text>
               </View>
-
-              <Text style={styles.selectedCount}>
-                {frequency} {frequency === 1 ? "minute" : "minutes"}
-              </Text>
+              <Text style={styles.recordtitle}>Record your Experience</Text>
+              <Text style={styles.recordsubtitle}>Record your Experience</Text>
+              <TextInput
+                keyboardType="default"
+                style={styles.input}
+                placeholder="what do you notice during your session ? anything you want to record"
+                placeholderTextColor='#bbb'
+                multiline
+              />
+              <View style={styles.buttoncontainer}>
+                <TouchableOpacity style={styles.cancelbtn}>
+                  <Text style={styles.canceltxt}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.savebtn}>
+                  <Text style={styles.savetxt}>Save to Journal</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-
-
-            <Text style={styles.recordtitle}>Record your Experience</Text>
-            <Text style={styles.recordsubtitle}>Record your Experience</Text>
-            <TextInput keyboardType="default"
-              style={styles.input}
-              placeholder="what do you notice during your session ? anything you want to record"
-              placeholderTextColor='#bbb'
-              multiline
-            />
-            <View style={styles.buttoncontainer}>
-              <TouchableOpacity style={styles.cancelbtn}>
-                <Text style={styles.canceltxt}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.savebtn}>
-                <Text style={styles.savetxt}>Save to Journal</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </ScrollView>
         )}
 
         {activeTab === "Guided" && (
@@ -209,12 +215,11 @@ const PracticeReminder = (props) => {
                     Select from our collection of guided practice audio tracks
                   </Text>
                 </View>
-                <TouchableOpacity style={styles.recordbtn}>
+                <TouchableOpacity style={styles.recordbtn} onPress={() => setRecord(true)}>
                   <Ionicons name="create-outline" size={20} color="#202124" />
                   <Text style={styles.recordtxt}>Record Experience</Text>
                 </TouchableOpacity>
               </View>
-
               {audiodata.map((item, index) => (
                 <View key={index} style={styles.audioItem}>
                   <View style={{ flex: 1, width: '90%' }}>
@@ -239,6 +244,47 @@ const PracticeReminder = (props) => {
           </ScrollView>
         )}
       </ImageBackground>
+
+      {/* Modal for recording experience */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={record}
+        onRequestClose={() => {
+          setRecord(!record);
+        }}
+      >
+        <ScrollView contentContainerStyle={{ flex: 1 }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Record your Experience</Text>
+            <Text style={styles.modalSubtitle}>What do you notice during your session?</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Start typing here..."
+              placeholderTextColor="#bbb"
+              multiline
+              value={recordedExperience}
+              onChangeText={setRecordedExperience}
+            />
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={handleCancel}
+              >
+                <Text style={styles.modalBtnText2}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveBtn}
+                onPress={handleSaveExperience}
+              >
+                <Text style={styles.modalBtnText1}>Save to Journal</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        </ScrollView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -254,13 +300,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
-    paddingTop: 45,
+    paddingTop: 35,
     backgroundColor: "#3d424dff",
   },
   menuButton: {
     position: "absolute",
     left: 20,
-    top: 45,
+    top: 30,
     padding: 5,
   },
   headerTextContainer: {
@@ -400,30 +446,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   input: {
+    width: '100%', 
+    height: 100, 
     borderWidth: 0.6,
     borderColor: '#bbb',
-    backgroundColor: '#ffff',
+    backgroundColor: '#fff',
     borderRadius: 10,
     marginTop: 5,
+    padding: 10,
+    textAlignVertical: 'top', 
   },
   buttoncontainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: '20%',
+    gap: '10%',
     alignItems: 'center',
     marginTop: 15,
-
   },
   cancelbtn: {
     borderRadius: 0.5,
     borderColor: "#ffff",
     width: 100,
     height: 40,
-    backgroundColor: '#ffff',
+    backgroundColor: '#dbd8d8ff',
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center'
-
   },
   savebtn: {
     borderRadius: 0.5,
@@ -438,12 +486,10 @@ const styles = StyleSheet.create({
   canceltxt: {
     color: '#5D3FD3',
     textAlign: 'center'
-
   },
   savetxt: {
     color: '#ffff',
     textAlign: 'center'
-
   },
   guideContainer: {
     backgroundColor: "#fff",
@@ -521,11 +567,94 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5
+    gap: 5,
   },
   playText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  // Modal Styles
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '90%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalInput: {
+    width: '100%',
+    height: 150,
+    borderWidth: 1,
+    borderColor: '#bbb',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    padding: 10,
+    textAlignVertical: 'top',
+    marginBottom: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  modalCancelBtn: {
+    backgroundColor: '#fff',
+    borderColor: '#dbd8d8ff',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+    justifyContent:'center'
+  },
+  modalSaveBtn: {
+    backgroundColor: '#5D3FD3',
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 10,
+    justifyContent:'center'
+  },
+  modalBtnText1: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+    modalBtnText2: {
+    color: '#090909ff',
+    fontSize: 11,
     fontWeight: 'bold',
   },
 });
