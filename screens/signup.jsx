@@ -1,15 +1,50 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
 
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function SignupScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      Alert.alert('Missing info', 'Please enter email and password.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Password mismatch', 'Passwords do not match.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      if (firstName || lastName || username) {
+        await updateProfile(cred.user, {
+          displayName: username || `${firstName} ${lastName}`.trim(),
+        });
+      }
+      Alert.alert('Success', 'Account created. You are now signed in.');
+      navigation.replace('MainApp');
+    } catch (err) {
+      Alert.alert('Sign up failed', err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
           <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -44,6 +79,8 @@ export default function SignupScreen({ navigation }) {
             style={styles.input}
             placeholder="First name"
             placeholderTextColor="#bbb"
+            value={firstName}
+            onChangeText={setFirstName}
           />
         </View>
         <View style={[styles.inputContainer, { flex: 1 }]}>
@@ -51,6 +88,8 @@ export default function SignupScreen({ navigation }) {
             style={styles.input}
             placeholder="Last name"
             placeholderTextColor="#bbb"
+            value={lastName}
+            onChangeText={setLastName}
           />
         </View>
       </View>
@@ -61,6 +100,8 @@ export default function SignupScreen({ navigation }) {
           style={styles.input}
           placeholder="Choose a username"
           placeholderTextColor="#bbb"
+          value={username}
+          onChangeText={setUsername}
         />
       </View>
 
@@ -71,6 +112,8 @@ export default function SignupScreen({ navigation }) {
           placeholder="Enter your email"
           placeholderTextColor="#bbb"
           keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
 
@@ -81,6 +124,8 @@ export default function SignupScreen({ navigation }) {
           placeholder="Create a password (min 8 characters)"
           placeholderTextColor="#bbb"
           secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
         />
         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
           <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={24} color="#bbb" />
@@ -94,14 +139,16 @@ export default function SignupScreen({ navigation }) {
           placeholder="Confirm your password"
           placeholderTextColor="#bbb"
           secureTextEntry={!showConfirmPassword}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
         />
         <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
           <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={24} color="#bbb" />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.signUpButton}>
-        <Text style={styles.signUpButtonText}>Sign Up</Text>
+      <TouchableOpacity style={styles.signUpButton} disabled={isSubmitting} onPress={handleSignUp}>
+        <Text style={styles.signUpButtonText}>{isSubmitting ? 'Creating...' : 'Sign Up'}</Text>
       </TouchableOpacity>
     </ImageBackground>
     </ScrollView>
