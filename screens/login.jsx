@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import { useAuth } from './context/AuthContext';
 
 export default function LoginScreen() {
     const navigation = useNavigation();
@@ -14,6 +15,9 @@ export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const {login} = useAuth();
+
+    
 
     const handleSignIn = async () => {
         if (!email || !password) {
@@ -23,6 +27,7 @@ export default function LoginScreen() {
         setIsSubmitting(true);
         try {
             await signInWithEmailAndPassword(auth, email.trim(), password);
+            await login({ email: email.trim() });
             navigation.replace('MainApp');
         } catch (err) {
             Alert.alert('Sign in failed', err.message);

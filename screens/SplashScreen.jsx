@@ -3,15 +3,28 @@ import React,{ useEffect } from 'react';
 import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from './context/AuthContext';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
 
-    useEffect (()=>{
-        setTimeout(()=>{
-            navigation.replace('Auth');
-        }, 3000);
-    },[]);
+   const { isAuthenticated } = useAuth();
+  
+
+  useEffect(() => {
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    // Add a small delay to show splash screen
+    setTimeout(() => {
+      if (isAuthenticated) {
+        navigation.replace('MainApp');
+      } else {
+        navigation.replace('Auth');
+      }
+    }, 5000);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>

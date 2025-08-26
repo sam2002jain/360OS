@@ -18,6 +18,7 @@ import Practice from './screens/main/PracticeReminder';
 import Zoom from './screens/main/Zoomsession'; 
 import Profile from './screens/main/Profile'; 
 import Setting from './screens/main/Setting';
+import { AuthProvider } from './screens/context/AuthContext';
 
 
 
@@ -51,19 +52,36 @@ function DrawerNavigation() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName='Splash'>
-            <Stack.Screen name="Splash" component={Splash} />
-            <Stack.Screen name="Auth" component={LoginScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
-            <Stack.Screen name="ForgetPass" component={ForgetPassScreen} />
-            <Stack.Screen name="MainApp" component={DrawerNavigation} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </GestureHandlerRootView>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <NavigationContainer>
+            <Stack.Navigator 
+              screenOptions={{ headerShown: false }} 
+              initialRouteName='Splash'
+            >
+              <Stack.Screen 
+                name="Splash" 
+                component={Splash} 
+                options={{ gestureEnabled: false }}
+              />
+              <Stack.Screen 
+                name="Auth" 
+                component={LoginScreen} 
+                options={{ gestureEnabled: false }}
+              />
+              <Stack.Screen name="Signup" component={SignupScreen} />
+              <Stack.Screen name="ForgetPass" component={ForgetPassScreen} />
+              <Stack.Screen 
+                name="MainApp" 
+                component={DrawerNavigation}
+                options={{ gestureEnabled: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }
 

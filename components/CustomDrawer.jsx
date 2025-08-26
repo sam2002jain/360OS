@@ -3,9 +3,19 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'r
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
+import { useAuth } from '../screens/context/AuthContext';
 
 export default function CustomDrawer(props) {
   const { navigation } = props;
+  const { logout } = useAuth();
+
+  const bottomMenu = (name) => {
+    const screen = bottomMenuItems.find(item => item.name === name)?.screen;
+    if (screen === 'Auth') {
+      logout();
+      navigation.navigate(screen);
+    }
+  };
 
   const menuItems = [
     { name: 'AI Chat', icon: 'chatbubble-outline', screen: 'AIChat' },
@@ -55,7 +65,7 @@ export default function CustomDrawer(props) {
             <TouchableOpacity
               key={index}
               style={styles.menuItem}
-              onPress={() => navigation.navigate(item.screen)}
+              onPress={() => bottomMenu(item.name)}
             >
               <Ionicons name={item.icon} size={24} color="#fff" />
               <Text style={styles.menuText}>{item.name}</Text>
