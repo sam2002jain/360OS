@@ -15,6 +15,9 @@ export default function CustomDrawer(props) {
       logout();
       navigation.navigate(screen);
     }
+    else if (screen) {
+      navigation.navigate(screen);
+    }
   };
 
   const menuItems = [
