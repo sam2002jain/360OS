@@ -1,10 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View, TouchableOpacity, useWindowDimensions } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = (props) => {
-  const { navigation } = props
-  const { width } = useWindowDimensions()
+  const { navigation } = props;
+  const { width } = useWindowDimensions();
+  const [user, setUser] = useState('');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          // Parse the JSON string back into an object
+          setUser(JSON.parse(storedUser));
+          console.log(storedUser);
+        }
+      } catch (error) {
+        console.error("Failed to load user data from storage", error);
+      } finally {
+        // Set loading to false once the operation is complete
+        setIsLoading(false);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const rs = (n) => Math.round((width / 375) * n) // responsive scale based on iPhone 11 width
 
@@ -39,10 +60,10 @@ const Profile = (props) => {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ color: '#FFFFFF', fontSize: rs(34), fontWeight: '700' }}>SJ</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: rs(34), fontWeight: '700' }}>{user.firstName + user.lastName}</Text>
           </View>
-          <Text style={{ color: '#FFFFFF', fontSize: rs(22), fontWeight: '700', marginTop: rs(12) }}>SANYAM JAIN</Text>
-          <Text style={{ color: '#A5A8B6', fontSize: rs(14), marginTop: rs(6) }}>@Sam2002</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: rs(22), fontWeight: '700', marginTop: rs(12) }}>{user.firstName}</Text>
+          <Text style={{ color: '#A5A8B6', fontSize: rs(14), marginTop: rs(6) }}>@{user.username}</Text>
         </View>
 
         {/* Quick Actions */}
@@ -68,7 +89,7 @@ const Profile = (props) => {
           <View style={[styles.card, { padding: rs(14), borderRadius: rs(14), marginBottom: rs(12) }]}>
             <Text style={[styles.cardLabel, { fontSize: rs(12) }]}>Username</Text>
             <View style={styles.cardRow}>
-              <Text style={[styles.cardValue, { fontSize: rs(16) }]}>Sam2002</Text>
+              <Text style={[styles.cardValue, { fontSize: rs(16) }]}>{user.username}</Text>
               <Ionicons name="person-circle-outline" size={rs(20)} color="#94A3B8" />
             </View>
           </View>
@@ -76,7 +97,7 @@ const Profile = (props) => {
           <View style={[styles.card, { padding: rs(14), borderRadius: rs(14), marginBottom: rs(12) }]}>
             <Text style={[styles.cardLabel, { fontSize: rs(12) }]}>Email</Text>
             <View style={styles.cardRow}>
-              <Text style={[styles.cardValue, { fontSize: rs(16) }]}>sanyamjainit@gmail.com</Text>
+              <Text style={[styles.cardValue, { fontSize: rs(16) }]}>{user.email}</Text>
               <Ionicons name="mail-outline" size={rs(20)} color="#94A3B8" />
             </View>
           </View>

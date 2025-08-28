@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
+import { useAuth } from './context/AuthContext';
 
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -19,6 +20,7 @@ export default function SignupScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {signUp} = useAuth();
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -36,6 +38,7 @@ export default function SignupScreen({ navigation }) {
         await updateProfile(cred.user, {
           displayName: username || `${firstName} ${lastName}`.trim(),
         });
+        await signUp({ firstName, lastName, username, email: email.trim() });
       }
       Alert.alert('Success', 'Account created. You are now signed in.');
       navigation.replace('MainApp');

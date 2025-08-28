@@ -1,11 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createDocument, updateDocument } from '../../firebase';
 
 type AuthContextType = {
   isAuthenticated: boolean;
   user: any | null;
   login: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
+  signUp: (userData: any) => Promise<void>;
+
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,8 +38,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       setIsAuthenticated(true);
+      
+      // Update the Firestore document using the user's UID as the document ID
+      await updateDocument('user', userData.email, { 
+        email: userData.email,
+        lastLogin: new Date().toISOString()
+      });
     } catch (error) {
-      console.error('Error storing user data:', error);
+      console.error('Error in login process:', error);
+      throw error; // Propagate error to handle it in the login screen
     }
   };
 
@@ -50,8 +60,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signUp = async (userData: any) => {
+    try {
+      await AsyncStorage.setItem('signup', JSON.stringify(userData));
+      setUser(userData);
+      setIsAuthenticated(true);
+      await createDocument('user', userData.email, userData);
+    } catch (error) {
+      console.error('Error storing user data:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, signUp }}>
       {children}
     </AuthContext.Provider>
   );
