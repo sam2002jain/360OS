@@ -11,11 +11,11 @@ const Profile = (props) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
+        const profileData = await AsyncStorage.getItem('profiledata');
+        if (profileData) {
           // Parse the JSON string back into an object
-          setUser(JSON.parse(storedUser));
-          console.log(storedUser);
+          setUser(JSON.parse(profileData));
+          console.log(profileData);
         }
       } catch (error) {
         console.error("Failed to load user data from storage", error);
@@ -60,7 +60,7 @@ const Profile = (props) => {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ color: '#FFFFFF', fontSize: rs(34), fontWeight: '700' }}>{user.firstName + user.lastName}</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: rs(24), fontWeight: '700' }}>{user.firstName}</Text>
           </View>
           <Text style={{ color: '#FFFFFF', fontSize: rs(22), fontWeight: '700', marginTop: rs(12) }}>{user.firstName}</Text>
           <Text style={{ color: '#A5A8B6', fontSize: rs(14), marginTop: rs(6) }}>@{user.username}</Text>

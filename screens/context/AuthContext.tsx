@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createDocument, updateDocument } from '../../firebase';
+import { createDocument, updateDocument, getDocument } from '../../firebase';
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -27,6 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (storedUser) {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
+        const userData = await getDocument('user', JSON.parse(storedUser).email);
+        if (userData) {
+          setUser(userData);
+        }
+        console.log(userData);
+        await AsyncStorage.setItem('profiledata', JSON.stringify(userData));
       }
     } catch (error) {
       console.error('Error loading stored user:', error);
