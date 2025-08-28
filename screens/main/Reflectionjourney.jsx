@@ -39,7 +39,8 @@ const entriesdata = [
   },
 ];
 
-const reflectionjourney = () => {
+const reflectionjourney = (props) => {
+  const navigation = props.navigation;
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("23/08/2025");
