@@ -9,9 +9,9 @@ import {
   Modal,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { addPostToArray } from "../../firebase";
+import { addPostToArray, getAllDocuments } from "../../firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PostCard = ({ author, time, content, tags, appreciations, comments }) => (
@@ -56,6 +56,33 @@ const CommunityHub = (props) => {
   const [date, setDate] = useState("23/08/2025");
   const [journalContent, setJournalContent] = useState("");
   const [tags, setTags] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      const allCommunityDocs = await getAllDocuments('community_post');
+      
+      // If your posts are nested in an array (as suggested in the previous answer),
+      // you need to flatten the data
+      const allPosts = allCommunityDocs.flatMap(userDoc => 
+        (userDoc.posts || []).map(post => ({
+          ...post,
+          userId: userDoc.id, // Add the user's ID for identification
+        }))
+      );
+      
+      setPosts(allPosts);
+      setLoading(false);
+    };
+
+    fetchPosts();
+  }, []);
+
+   if (loading) {
+    return <Text>Loading posts...</Text>;
+  }
 
   const handleSave = async () => {
     const user = await AsyncStorage.getItem('user');
@@ -106,7 +133,7 @@ const CommunityHub = (props) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Main Community Header */}
           <View style={styles.communityHeader}>
-            <Text style={styles.communityTitle}>Indra's Luminous Web</Text>
+            <Text style={styles.communityTitle}>Community Posts</Text>
 
             <TouchableOpacity style={styles.createPostButton} onPress={() => setModalVisible(true)}>
               <Ionicons name="add-circle-outline" size={20} color="#fff" />
@@ -116,31 +143,17 @@ const CommunityHub = (props) => {
 
           {/* Feed of Community Posts */}
           <View style={styles.postFeed}>
-            <PostCard
-              author="Sarah J."
-              time="3 hours ago"
-              content="I had a profound realization today about the nature of consciousness. When we stop seeking and simply rest as awareness, everything transforms. Has anyone else experienced this shift?"
-              tags={["presence", "awareness", "transformation"]}
-              appreciations={27}
-              comments={8}
-            />
-            <PostCard
-              author="Michael T."
-              time="Yesterday"
-              content="A practice that has helped me tremendously: pause throughout the day and simply notice what is already here. The spacious awareness that holds all experience is always available."
-              tags={["practice", "awareness"]}
-              appreciations={43}
-              comments={12}
-            />
-            {/* You can add more PostCard components here */}
-            <PostCard
-              author="Elena R."
-              time="2 days ago"
-              content="Just finished a 10-day silent retreat. The inner stillness I found is beyond words. So grateful for this community and everyone's shared wisdom."
-              tags={["retreat", "stillness", "gratitude"]}
-              appreciations={51}
-              comments={15}
-            />
+            {posts.map((post, index) => (
+              <PostCard
+                key={index}
+                author={post.userId}
+                time={post.date}
+                content={post.content}
+                tags={post.tags}
+                appreciations={post.appreciations || 0}
+                comments={post.comments || 0}
+              />
+            ))}
           </View>
         </ScrollView>
       </ImageBackground>

@@ -142,6 +142,24 @@ export const deleteDocument = async (collectionName, documentId) => {
   }
 };
 
+export const getAllDocuments = async (collectionName) => {
+  try {
+    const querySnapshot = await getDocs(collection(db, collectionName));
+    const allDocs = [];
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for a document snapshot
+      allDocs.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    return allDocs;
+  } catch (error) {
+    console.error('Error getting all documents:', error);
+    return [];
+  }
+};
+
 export const queryDocuments = async (collectionName, fieldPath, operator, value) => {
   try {
     const q = query(collection(db, collectionName), where(fieldPath, operator, value));
