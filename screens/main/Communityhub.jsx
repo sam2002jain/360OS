@@ -59,7 +59,7 @@ const CommunityHub = (props) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => {    
     const fetchPosts = async () => {
       setLoading(true);
       const allCommunityDocs = await getAllDocuments('community_post');
@@ -78,12 +78,10 @@ const CommunityHub = (props) => {
     };
 
     fetchPosts();
+  
   }, []);
 
-   if (loading) {
-    return <Text>Loading posts...</Text>;
-  }
-
+   
   const handleSave = async () => {
     const user = await AsyncStorage.getItem('user');
     console.log(user);
@@ -93,9 +91,10 @@ const CommunityHub = (props) => {
       content: journalContent,
       tags: tags.split(",").map((tag) => tag.trim()),
     };
-    const userEmail = JSON.parse(user).email;
+    const username = await AsyncStorage.getItem('username');
+    console.log(username);
 
-    addPostToArray('community_post', userEmail, newPost)
+    addPostToArray('community_post', username, newPost)
       .then(() => {
         console.log("Post saved successfully");
       })
@@ -125,7 +124,7 @@ const CommunityHub = (props) => {
         </View>
       </View>
 
-      {/* Background and Scrollable Content */}
+      {!loading &&(
       <ImageBackground
         source={require("../../assets/bg.jpeg")}
         style={styles.background}
@@ -157,6 +156,12 @@ const CommunityHub = (props) => {
           </View>
         </ScrollView>
       </ImageBackground>
+      )}
+      {loading &&(
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading posts...</Text>
+        </View>
+        )}
 
       <Modal
               animationType="slide"
@@ -397,6 +402,16 @@ const styles = StyleSheet.create({
   modalBtnText2: {
     color: "#090909ff",
     fontSize: 11,
+    fontWeight: "bold",
+  },
+  loadingContainer:{
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

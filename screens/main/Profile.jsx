@@ -27,7 +27,7 @@ const Profile = (props) => {
           "user",
           JSON.parse(email).email
         );
-        
+        await AsyncStorage.setItem('username', userData.username);
         if (userData) {
           setUser(userData);
         }
