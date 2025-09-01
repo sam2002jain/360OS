@@ -26,8 +26,14 @@ export default function LoginScreen() {
         }
         setIsSubmitting(true);
         try {
-            await signInWithEmailAndPassword(auth, email.trim(), password);
-            await login({ email: email.trim() });
+            const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+            // Create userData object with the correct document ID structure
+            const userData = {
+                email: email.trim(),
+                uid: userCredential.user.uid,
+                lastLogin: new Date().toISOString()
+            };
+            await login(userData);
             navigation.replace('MainApp');
         } catch (err) {
             Alert.alert('Sign in failed', err.message);
