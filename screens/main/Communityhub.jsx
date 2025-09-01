@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { addPostToArray } from "../../firebase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PostCard = ({ author, time, content, tags, appreciations, comments }) => (
   <View style={postStyles.postCard}>
@@ -55,8 +57,25 @@ const CommunityHub = (props) => {
   const [journalContent, setJournalContent] = useState("");
   const [tags, setTags] = useState("");
 
-  const handleSave = () => {
-    // Logic to save the journal entry
+  const handleSave = async () => {
+    const user = await AsyncStorage.getItem('user');
+    console.log(user);
+    const newPost = {
+      title,
+      date,
+      content: journalContent,
+      tags: tags.split(",").map((tag) => tag.trim()),
+    };
+    const userEmail = JSON.parse(user).email;
+
+    addPostToArray('community_post', userEmail, newPost)
+      .then(() => {
+        console.log("Post saved successfully");
+      })
+      .catch((error) => {
+        console.error("Error saving post:", error);
+      });
+
     setModalVisible(false);
   };
 

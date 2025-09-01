@@ -10,7 +10,8 @@ import {
   deleteDoc,
   query,
   where,
-  getDocs
+  getDocs,
+  arrayUnion,
 } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
@@ -96,6 +97,27 @@ export const updateDocument = async (collectionName, documentId, data) => {
 
   } catch (error) {
     console.error('Error updating document:', error);
+    return false;
+  }
+};
+
+export const addPostToArray = async (collectionName, documentId, newPost) => {
+  try {
+    const docRef = doc(db, collectionName, documentId);
+    
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      await setDoc(docRef, { posts: [newPost] });
+      console.log("Document created and first post added.");
+    } else {
+      await updateDoc(docRef, {
+        posts: arrayUnion(newPost)
+      });
+      console.log("Post successfully added to array.");
+    }
+    return true;
+  } catch (error) {
+    console.error('Error adding post to array:', error);
     return false;
   }
 };
