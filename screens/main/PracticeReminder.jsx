@@ -8,9 +8,10 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  Alert,
   KeyboardAvoidingView
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 
@@ -54,6 +55,9 @@ const PracticeReminder = (props) => {
   const [playingIndex, setPlayingIndex] = useState(null);
   const [record, setRecord] = useState(false);
   const [recordedExperience, setRecordedExperience] = useState("");
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const timerRef = useRef(null);
 
   const handlePlayPause = (index) => {
     if (playingIndex === index) {
@@ -73,6 +77,52 @@ const PracticeReminder = (props) => {
   const handleCancel = () => {
     setRecordedExperience(""); // Clear the text input
     setRecord(false); // Close the modal without saving
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const startTimer = () => {
+    if (isTimerRunning) {
+      // Stop the timer
+      clearInterval(timerRef.current);
+      setIsTimerRunning(false);
+      setTimeLeft(0);
+    } else {
+      // Start the timer
+      setTimeLeft(frequency * 60); // Convert minutes to seconds
+      setIsTimerRunning(true);
+      
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerRef.current);
+            setIsTimerRunning(false);
+            return 0;
+          }
+           if (prevTime === 5) {
+            // Show a notification or alert when 5 seconds are left
+            Alert.alert("Time Alert", "Only 5 seconds left!");
+          }
+          return prevTime - 1;
+
+         
+        });
+      }, 1000);
+    }
+  };
+
+  const savetojournal=()=>{
+
   };
 
   return (
@@ -150,13 +200,14 @@ const PracticeReminder = (props) => {
                 {frequency} {frequency === 1 ? "time" : "times"} per day
               </Text>
             </View>
-            <TouchableOpacity style={styles.saveButton}>
+            <TouchableOpacity style={styles.saveButton} onPress={()=>Alert.alert("Settings saved!")}>
               <Text style={styles.saveButtonText}>Save Settings</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {activeTab === "Practice" && (
+          <KeyboardAvoidingView behavior="padding" style={{flex:1}}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.contentContainer}>
               <Text style={styles.contentTitle}>Practice Timer</Text>
@@ -183,9 +234,17 @@ const PracticeReminder = (props) => {
                 <Text style={styles.selectedCount}>
                   {frequency} {frequency === 1 ? "minute" : "minutes"}
                 </Text>
+                <Text style={styles.timerDisplay}>{formatTime(timeLeft)}</Text>
+                <TouchableOpacity
+                  style={[styles.timerButton, isTimerRunning && styles.timerButtonRunning]}
+                  onPress={startTimer}
+                >
+                  <Text style={styles.timerButtonText}>{isTimerRunning ? "Stop" : "Start"}</Text>
+                </TouchableOpacity>
               </View>
               <Text style={styles.recordtitle}>Record your Experience</Text>
               <Text style={styles.recordsubtitle}>Record your Experience</Text>
+              
               <TextInput
                 keyboardType="default"
                 style={styles.input}
@@ -197,12 +256,14 @@ const PracticeReminder = (props) => {
                 <TouchableOpacity style={styles.cancelbtn}>
                   <Text style={styles.canceltxt}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.savebtn}>
+                <TouchableOpacity style={styles.savebtn} onPress={savetojournal}>
                   <Text style={styles.savetxt}>Save to Journal</Text>
                 </TouchableOpacity>
               </View>
+             
             </View>
           </ScrollView>
+           </KeyboardAvoidingView>
         )}
 
         {activeTab === "Guided" && (
@@ -402,6 +463,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#5D3FD3",
     marginTop: 10,
+    marginBottom:10,
   },
   radioOption: {
     flexDirection: "row",
@@ -655,6 +717,28 @@ const styles = StyleSheet.create({
     modalBtnText2: {
     color: '#090909ff',
     fontSize: 11,
+    fontWeight: 'bold',
+  },
+  timerDisplay: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#5D3FD3',
+    textAlign: 'center',
+    marginVertical: 20,
+  },
+  timerButton: {
+    backgroundColor: '#5D3FD3',
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  timerButtonRunning: {
+    backgroundColor: '#FF4444',
+  },
+  timerButtonText: {
+    color: '#fff',
+    textAlign: "center",
+    fontSize: 20,
     fontWeight: 'bold',
   },
 });
