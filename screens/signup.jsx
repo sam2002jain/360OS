@@ -40,8 +40,8 @@ export default function SignupScreen({ navigation }) {
         });
         await signUp({ firstName, lastName, username, email: email.trim() });
       }
-      Alert.alert('Success', 'Account created. You are now signed in.');
-      navigation.replace('MainApp');
+      Alert.alert('Success', 'Please login to continue.');
+      navigation.replace('Auth');
     } catch (err) {
       Alert.alert('Sign up failed', err.message);
     } finally {
