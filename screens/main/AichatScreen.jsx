@@ -59,7 +59,7 @@ function HomeScreen({ navigation }) {
     const botMessage = {
       id: Date.now().toString() + "_bot",
       role: "assistant",
-      text: data.answer || JSON.stringify(data), // Adjust if your API returns differently
+      text: data.answer || JSON.stringify(data), 
     };
 
     setMessages((prev) => [...prev, botMessage]);
