@@ -13,6 +13,7 @@ import {
   getDocs,
   arrayUnion,
 } from 'firebase/firestore';
+import { getAuth, updatePassword } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -173,5 +174,29 @@ export const queryDocuments = async (collectionName, fieldPath, operator, value)
     return [];
   }
 };
+
+export const passwordupdate = async(email, password)=>{
+  try{
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if(user){
+      updatePassword(user, password)
+      .then(()=>{
+        console.log('Password updated successfully');
+      })
+      .catch((error)=>{
+        console.log("error while updating password:",error);
+
+      });
+    }else{
+      console.warn('No user is currently signed in.');
+    }
+  }
+  catch(e){
+    console.error('Error password change:', error);
+    return;
+
+  }
+}
 
 export { app, auth, db };

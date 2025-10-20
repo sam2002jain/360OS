@@ -19,6 +19,7 @@ import Zoom from './screens/main/Zoomsession';
 import Profile from './screens/main/Profile'; 
 import Setting from './screens/main/Setting';
 import { AuthProvider } from './screens/context/AuthContext';
+import ChangePassword from './screens/main/ChangePassword';
 
 
 
@@ -46,6 +47,7 @@ function DrawerNavigation() {
       <Drawer.Screen name="Zoom" component={Zoom} />
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="Setting" component={Setting} />
+      <Drawer.Screen name="changepasswordscreen" component={ChangePassword}/>
     </Drawer.Navigator>
   );
 }

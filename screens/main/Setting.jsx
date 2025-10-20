@@ -12,6 +12,10 @@ const SettingScreen = (props) => {
   const toggleNotifications = () => setIsNotificationsEnabled(previousState => !previousState);
   const toggleDarkMode = () => setIsDarkModeEnabled(previousState => !previousState);
 
+  const handlechangepassowrd=()=>{
+    navigation.navigate("changepasswordscreen");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -31,7 +35,7 @@ const SettingScreen = (props) => {
             </View>
             <MaterialIcons name="arrow-forward-ios" size={16} color="#bbb" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity style={styles.settingItem} onPress={handlechangepassowrd}>
             <View style={styles.leftContent}>
               <AntDesign name="lock" size={24} color="#555" />
               <Text style={styles.settingText}>Change Password</Text>
@@ -47,7 +51,7 @@ const SettingScreen = (props) => {
           </TouchableOpacity>
         </View>
 
-        {/* Notifications Section */}
+        {/* Notifications Section
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Notifications</Text>
           <View style={styles.settingItem}>
@@ -63,14 +67,7 @@ const SettingScreen = (props) => {
               value={isNotificationsEnabled}
             />
           </View>
-          <TouchableOpacity style={styles.settingItem}>
-            <View style={styles.leftContent}>
-              <FontAwesome name="language" size={24} color="#555" />
-              <Text style={styles.settingText}>Language</Text>
-            </View>
-            <MaterialIcons name="arrow-forward-ios" size={16} color="#bbb" />
-          </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Support Section */}
         <View style={styles.section}>
