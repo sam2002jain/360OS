@@ -175,9 +175,10 @@ export const queryDocuments = async (collectionName, fieldPath, operator, value)
   }
 };
 
-export const passwordupdate = async(email, password)=>{
+export const passwordupdate = async(password)=>{
   try{
     const auth = getAuth();
+    console.log(auth);
     const user = auth.currentUser;
     if(user){
       updatePassword(user, password)
@@ -186,6 +187,7 @@ export const passwordupdate = async(email, password)=>{
       })
       .catch((error)=>{
         console.log("error while updating password:",error);
+        Alert.alert("please relogin and then change password");
 
       });
     }else{
